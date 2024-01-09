@@ -2,11 +2,20 @@ from collections import namedtuple
 
 
 cards = ['2', '3', '4', "5", '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
-
 Card = namedtuple('Card', 'face, value')
+
 value = 2
 deck = []
-hand = [0, 0, 0, 0, 0]
+
+for c in cards:
+    deck.append(Card(c, value))
+    value += 1
+print(f'Deck is: {deck}')
+
+
+Hand = namedtuple('Hand', 'cards, bid')
+
+
 
 Hand_Value = namedtuple('Hand_Value', 'name, value')
 # five_kind = all face are equal =1
@@ -24,11 +33,22 @@ one_pair = Hand_Value('one_pair', 2)
 # high_card = all different
 high_card = Hand_Value('high_card', 1)
 
-for c in cards:
-    deck.append(Card(c, value))
-    value += 1
+five_kind_hands = []
+four_kind_hands = []
+full_house_hands = []
+three_kind_hands = []
+two_pair_hands = []
+one_pair_hands = []
+high_card_hands = []
 
-print(f'Deck is: {deck}')
+
+def get_cards(hand):
+    cds = []
+    for h in hand:
+        card = [cd for cd in deck
+                if cd.face == h]
+        cds.append(card[0])
+    return cds
 
 
 def check_hand(hand):
@@ -36,32 +56,43 @@ def check_hand(hand):
     print(f'here is the count of the various values: {distinct}')
     match distinct:
         case 1:
-            hand_type = five_kind
+            five_kind_hands.append(hand)
         case 2:
             sets = set(hand)
             print(f'Sets: {sets}')
             for s in sets:
                 if hand.count[s] == 4:
-                    hand_type = four_kind
+                    four_kind_hands.append(hand)
                     break
                 elif hand.count[s] == 3:
-                    hand_type = full_house
+                    full_house_hands.append(hand)
                     break
         case 3:
             sets = set(hand)
             print(f'Sets: {sets}')
             for s in sets:
                 if hand.count(s) == 3:
-                    hand_type = three_kind
+                    three_kind_hands.append(hand)
                     break
                 elif hand.count(s) == 2:
-                    hand_type = two_pair
+                    two_pair_hands.append(hand)
                     break
         case 4:
-            hand_type = one_pair
+            one_pair_hands.append(hand)
         case _:
-            hand_type = high_card
-    return hand_type
+            high_card_hands.append(hand)
+    return
+
+
+def stringify_hand(hand):
+    pieces = [c.face for c in hand.cards]
+    strng = ''.join([str(i) for i in pieces])
+    print(f'Pieces: {strng}')
+    return strng
+
+
+def tie_breaker(hand1, hand2):
+    pass
 
 
 def main():
@@ -69,13 +100,24 @@ def main():
         print('\n\n')
         results = []
         line = input.readline()
+
         while line != '':
             hand, bid = line.split(' ')
-            print(f'Hand: {hand}, Bid: {bid}')
-            result = check_hand(hand)
-            results.append(result)
+            current_hand = Hand(get_cards(hand), bid)
+
+            print(f'Hand: {current_hand}')
+            hand_str = stringify_hand(current_hand)
+            check_hand(hand_str)
             line = input.readline()
-        print(f'Results: {results}')
+
+        print(f'Results:\n'
+              f'Five Kind: {five_kind_hands}\n'
+              f'Four Kind: {four_kind_hands}\n'
+              f'Full House: {full_house_hands}\n'
+              f'Three Kind: {three_kind_hands}\n'
+              f'Two Pair: {two_pair_hands}\n'
+              f'One Pair: {one_pair_hands}\n'
+              f'High Card: {high_card_hands}')
 
 
 if __name__ == '__main__':
